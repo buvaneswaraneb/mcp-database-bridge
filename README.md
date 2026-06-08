@@ -1,52 +1,62 @@
-# 07. Database MCP Server
+# MCP Database Bridge
 
-> Hackathon Submission | Prince Spark Academy / PSVPEC | 2026
+A secure, read-only Model Context Protocol (MCP) server that empowers AI assistants like Claude to safely query and inspect local SQLite databases. 
 
-## Problem Statement
-MCP server exposing list_tables, get_schema, run_select (read-only), explain_query. Works with Claude Desktop and custom agents. No write operations allowed.
+## Features
+- **Read-Only Safeties**: Rejects destructive operations like `INSERT`, `UPDATE`, `DROP`, and `ALTER`.
+- **Introspection**: AI can list tables and read schemas directly.
+- **Claude Desktop Ready**: Comes with one-click setup scripts for macOS and Windows that automatically wire it up to your Claude Desktop instance.
 
-## AI Capability Demonstrated
-**MCP Server (Built) + Safe SQL Execution**
+## Setup Instructions
 
-## Setup
+### 1. Clone the repository
 ```bash
-git clone https://github.com/vishnu-psvpec/07-database-mcp-server.git
-cd 07-database-mcp-server
-pip install -r requirements.txt   # (or dotnet run for C# project)
-cp .env.example .env
-# Edit .env with your API keys
+git clone https://github.com/buvaneswaraneb/mcp-database-bridge.git
+cd mcp-database-bridge
 ```
 
-## Environment Variables
-```
-DB_PATH (optional, defaults to sample.db)
-```
+### 2. Automatic Configuration (Claude Desktop)
+To automatically install dependencies and configure Claude Desktop to use this server, run the setup script for your OS:
 
-## Run
+**Mac / Linux:**
 ```bash
-python src/server.py  # stdio transport — add to Claude Desktop config
+chmod +x setup.sh
+./setup.sh
 ```
 
-## Run Tests
+**Windows:**
+Double-click `setup.bat` or run it from your command line:
+```cmd
+setup.bat
+```
+
+### 3. Restart Claude Desktop
+Once the script finishes, **completely quit Claude Desktop** (Cmd+Q / Ctrl+Q) and reopen it. 
+Look for the 🔌 (plug) icon in the chat bar to verify that `database-mcp` is connected.
+
+---
+
+## Manual Setup (for Claude Code or Custom Agents)
+
+If you prefer to configure things manually or use Claude Code:
+
+1. **Create Virtual Environment & Install Dependencies:**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   cp .env.example .env
+   ```
+
+2. **Add to Claude Code:**
+   ```bash
+   claude mcp add database-mcp .venv/bin/python src/server.py
+   ```
+
+## Running Tests
 ```bash
 pytest tests/ -v
 ```
 
-## Architecture
-See `docs/` folder for detailed architecture notes.
-
-## Deliverables
-- ✅ Public GitHub Repository
-- ✅ Source code with clean structure
-- ✅ README with setup & run instructions
-- ✅ Sample data in `sample_data/`
-- ✅ Test cases in `tests/`
-- ✅ AI Usage Note in `docs/ai_usage_note.md`
-
-## Tech Stack
-- Python 3.11 (or .NET 8 for project 11)
-- Anthropic claude-sonnet-4-20250514
-- AI Pattern: MCP Server (Built) + Safe SQL Execution
-
----
-*Prince Spark Academy / PSVPEC — Vishnu — Hackathon 2026*
+## Architecture & Project Structure
+See `structure.md` and `docs/ai_usage_note.md` for detailed architecture notes and a breakdown of the file structure.

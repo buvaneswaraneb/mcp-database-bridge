@@ -121,9 +121,16 @@ TOOLS = {
 }
 
 
-def handle_request(req: dict) -> dict:
+def handle_request(req: dict):
     method = req.get("method")
     req_id = req.get("id")
+
+    # If there is no ID, it's a notification (e.g. notifications/initialized). Do not respond.
+    if req_id is None:
+        return None
+
+    if method == "ping":
+        return {"jsonrpc": "2.0", "id": req_id, "result": {}}
 
     if method == "initialize":
         return {"jsonrpc": "2.0", "id": req_id, "result": {
@@ -170,9 +177,10 @@ def run_server():
         try:
             req = json.loads(line)
             resp = handle_request(req)
-            print(json.dumps(resp), flush=True)
+            if resp is not None:
+                print(json.dumps(resp), flush=True)
         except Exception as e:
-            print(json.dumps({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": str(e)}}), flush=True)
+            sys.stderr.write(f"Error: {e}\n")
 
 
 if __name__ == "__main__":

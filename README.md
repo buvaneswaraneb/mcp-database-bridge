@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://cdn.worldvectorlogo.com/logos/anthropic.svg" alt="Anthropic/Claude Logo" width="100" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/1280px-Claude_AI_logo.svg.png" alt="Anthropic/Claude Logo" width="100" />
   <h1>🔗 MCP Database Bridge</h1>
   
   <p><b>A secure, read-only Model Context Protocol (MCP) server that empowers Claude Desktop and other AI agents to safely query and inspect local SQLite databases.</b></p>
@@ -95,5 +95,5 @@ Curious how it works under the hood?
 
 ---
 <div align="center">
-  <i>Built with ❤️ for the Prince Spark Academy / PSVPEC Hackathon 2026</i>
+  <i></i>
 </div>

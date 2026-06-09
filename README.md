@@ -28,6 +28,12 @@
 
 The setup scripts create a Python virtual environment, install dependencies, and register `database-mcp` in Claude Desktop.
 
+### Setup & Demo Video
+
+Watch the complete installation and project demonstration:
+
+[![Watch the MCP Database Bridge Setup & Demo](https://img.youtube.com/vi/fIfSf9jsOS8/maxresdefault.jpg)](https://youtu.be/fIfSf9jsOS8)
+
 ### Prerequisites
 
 - Python 3.11 or newer

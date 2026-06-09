@@ -7,6 +7,11 @@ Compatible with Claude Desktop + custom agents.
 import os, json, sqlite3, re
 from pathlib import Path
 import sys
+import subprocess
+import urllib.request
+import urllib.error
+import time
+import webbrowser
 
 # Default directory for databases
 DEFAULT_DB_DIR = Path(__file__).resolve().parents[1] / "sample_data"
@@ -155,8 +160,46 @@ def explain_query(query: str, db_name: str = None) -> dict:
         return {"error": str(e)}
 
 
+def is_server_running(port=8000):
+    """Check if the Web UI server is already running."""
+    try:
+        urllib.request.urlopen(f"http://127.0.0.1:{port}/api/databases", timeout=1)
+        return True
+    except Exception:
+        return False
+
+
+def open_database_manager() -> dict:
+    """Start the Web UI server if needed, and open it in the user's browser."""
+    port = 8000
+    url = f"http://127.0.0.1:{port}"
+    
+    if not is_server_running(port):
+        # Start uvicorn server in a detached background process
+        env = os.environ.copy()
+        cmd = [sys.executable, "-m", "uvicorn", "src.web:app", "--port", str(port)]
+        
+        try:
+            # We suppress stdout/stderr to avoid polluting the JSON-RPC stdio
+            subprocess.Popen(cmd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            time.sleep(1.5)  # Wait for uvicorn to bind the port
+        except Exception as e:
+            return {"error": f"Failed to start Web UI server: {str(e)}"}
+            
+    # Open the browser
+    try:
+        webbrowser.open(url)
+        return {"message": f"Database Manager Web UI successfully opened in your browser at {url}"}
+    except Exception as e:
+        return {"message": f"Web UI server is running at {url}, but failed to open browser automatically. Error: {str(e)}"}
+
+
 # ── MCP stdio server ──────────────────────────────────────────────────────────
 TOOLS = {
+    "open_database_manager": {
+        "description": "Open the Database Manager Web UI in the browser to add, upload, or delete databases.",
+        "inputSchema": {"type": "object", "properties": {}, "required": []}
+    },
     "list_databases": {
         "description": "List all available databases",
         "inputSchema": {"type": "object", "properties": {}, "required": []}
@@ -209,7 +252,9 @@ def handle_request(req: dict):
         args = params.get("arguments", {})
         db_name = args.get("db_name")
 
-        if tool_name == "list_databases":
+        if tool_name == "open_database_manager":
+            result = open_database_manager()
+        elif tool_name == "list_databases":
             result = list_databases()
         elif tool_name == "list_tables":
             result = list_tables(db_name)

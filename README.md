@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="img/logo.png" alt="Anthropic/Claude Logo" width="200" />
-  <h1>🔗 MCP Database Bridge</h1>
+  <img src="img/logo_txt.png" alt="DB/BRIDGE Logo" width="200" />
+  <h1>DB/BRIDGE</h1>
   
   <p><b>A secure, read-only Model Context Protocol (MCP) server that empowers Claude Desktop and other AI agents to safely query and inspect local SQLite databases.</b></p>
 

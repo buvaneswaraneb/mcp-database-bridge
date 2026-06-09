@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Documentation for MCP Database Bridge, a read-only SQLite connector for AI agents.">
+  <meta name="theme-color" content="#0b1014">
+  <title>MCP Database Bridge | Documentation</title>
+  <link rel="icon" type="image/jpeg" href="img/logo.png">
+  <link rel="apple-touch-icon" href="img/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="progress-bar" id="progressBar"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="MCP Database Bridge home">
+      <span class="brand-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+      <span>DB<span class="brand-slash">/</span>BRIDGE</span>
+    </a>
+    <nav class="top-nav" aria-label="Primary navigation">
+      <a href="#architecture">Architecture</a>
+      <a href="#tools">Tools</a>
+      <a href="#debugging">Debugging</a>
+      <a href="#team">Team</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle color theme">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2m-3.64-6.36-1.42 1.42M8.06 16.94l-1.42 1.42m0-12.72 1.42 1.42m7.88 9.88 1.42 1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+      </button>
+      <a class="button button-small" href="https://github.com/buvaneswaraneb/mcp-database-bridge" target="_blank" rel="noreferrer">View GitHub</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="hero-content reveal">
+        <div class="eyebrow"><span class="status-dot"></span> Read-only SQLite access for AI agents</div>
+        <h1>Your database.<br><span>Now agent-readable.</span></h1>
+        <p class="hero-copy">A focused Model Context Protocol server that lets Claude Desktop and custom agents inspect, query, and reason over local SQLite databases without write access.</p>
+        <div class="hero-actions">
+          <a class="button" href="#quick-start">Start connecting</a>
+          <a class="text-link" href="#architecture">Explore how it works <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-metrics" aria-label="Project highlights">
+          <div><strong>06</strong><span>MCP tools</span></div>
+          <div><strong>100</strong><span>row response cap</span></div>
+          <div><strong>00</strong><span>write operations</span></div>
+        </div>
+      </div>
+
+      <div class="terminal-window reveal">
+        <div class="terminal-bar">
+          <span>live request trace</span>
+          <div class="terminal-controls"><i></i><i></i><i></i></div>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div><span class="line-num">01</span><span class="muted">$</span> claude mcp add database-mcp .venv/bin/python src/server.py</div>
+          <div><span class="line-num">02</span><span class="success">connected</span> database-mcp-server v1.0.0</div>
+          <div><span class="line-num">03</span><span class="muted">→</span> tools/call <span class="accent">list_databases</span></div>
+          <div><span class="line-num">04</span><span class="muted">←</span> { "databases": ["sample.db"] }</div>
+          <div><span class="line-num">05</span><span class="muted">→</span> tools/call <span class="accent">run_select</span></div>
+          <div><span class="line-num">06</span><span class="muted">·</span> SELECT name, price FROM products</div>
+          <div><span class="line-num">07</span><span class="muted">·</span> ORDER BY price DESC LIMIT 3</div>
+          <div><span class="line-num">08</span><span class="success">allowed</span> read-only policy passed</div>
+          <div><span class="line-num">09</span><span class="cursor"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Technology stack">
+      <span>MODEL CONTEXT PROTOCOL</span>
+      <span>PYTHON 3.11+</span>
+      <span>SQLITE</span>
+      <span>STDIO JSON-RPC</span>
+      <span>FASTAPI MANAGER</span>
+    </section>
+
+    <section class="section section-intro reveal">
+      <div>
+        <span class="section-kicker">01 / OVERVIEW</span>
+        <h2>A small bridge with a strict boundary.</h2>
+      </div>
+      <p>The server translates an agent's tool calls into controlled SQLite operations. It handles database discovery, schema inspection, query execution, and query planning while keeping destructive SQL outside the boundary.</p>
+    </section>
+
+    <section class="feature-grid">
+      <article class="feature-card feature-card-large reveal">
+        <div class="card-index">01</div>
+        <div class="safety-visual" aria-hidden="true">
+          <div class="safety-ring outer"><span>DROP</span><span>UPDATE</span><span>DELETE</span></div>
+          <div class="safety-ring inner">SELECT</div>
+        </div>
+        <div>
+          <span class="card-label">Policy layer</span>
+          <h3>Read-only by design</h3>
+          <p>Every query is checked before SQLite sees it. Write keywords and non-SELECT statements are rejected with a direct error.</p>
+        </div>
+      </article>
+      <article class="feature-card reveal">
+        <div class="card-index">02</div>
+        <div class="mini-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v7c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 12v7c0 1.7 3.1 3 7 3s7-1.3 7-3v-7"/></svg>
+        </div>
+        <span class="card-label">Database discovery</span>
+        <h3>One file or many</h3>
+        <p>Scan a directory for `.db` and `.sqlite` files, or mount an explicit path using environment variables.</p>
+      </article>
+      <article class="feature-card reveal">
+        <div class="card-index">03</div>
+        <div class="mini-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h10M4 19h7"/><circle cx="18" cy="15" r="3"/><path d="m20.2 17.2 2 2"/></svg>
+        </div>
+        <span class="card-label">Query intelligence</span>
+        <h3>Inspect before asking</h3>
+        <p>Agents can list tables, inspect column types, and run `EXPLAIN QUERY PLAN` before executing a final query.</p>
+      </article>
+    </section>
+
+    <section class="section" id="architecture">
+      <div class="section-heading reveal">
+        <span class="section-kicker">02 / ARCHITECTURE</span>
+        <h2>Follow the request.</h2>
+        <p>From natural-language question to bounded SQLite response.</p>
+      </div>
+
+      <div class="flow-diagram reveal" aria-label="Architecture flow diagram">
+        <div class="flow-node">
+          <span class="node-id">A</span>
+          <strong>AI client</strong>
+          <small>Claude Desktop or agent</small>
+        </div>
+        <div class="flow-arrow"><span>stdio / JSON-RPC</span><i>→</i></div>
+        <div class="flow-node active">
+          <span class="node-id">B</span>
+          <strong>MCP router</strong>
+          <small>Validates and dispatches</small>
+        </div>
+        <div class="flow-arrow"><span>tools/call</span><i>→</i></div>
+        <div class="flow-node">
+          <span class="node-id">C</span>
+          <strong>Safety layer</strong>
+          <small>SELECT-only policy</small>
+        </div>
+        <div class="flow-arrow"><span>safe SQL</span><i>→</i></div>
+        <div class="flow-node database-node">
+          <span class="node-id">D</span>
+          <strong>SQLite</strong>
+          <small>Local database files</small>
+        </div>
+      </div>
+
+      <div class="request-walkthrough reveal">
+        <div class="walkthrough-tabs" role="tablist" aria-label="Request stages">
+          <button class="walkthrough-tab active" type="button" data-step="0"><span>01</span> Discover</button>
+          <button class="walkthrough-tab" type="button" data-step="1"><span>02</span> Inspect</button>
+          <button class="walkthrough-tab" type="button" data-step="2"><span>03</span> Validate</button>
+          <button class="walkthrough-tab" type="button" data-step="3"><span>04</span> Respond</button>
+        </div>
+        <div class="walkthrough-panel">
+          <div>
+            <span class="panel-label" id="flowLabel">TOOL CALL / list_databases</span>
+            <h3 id="flowTitle">Find available data sources</h3>
+            <p id="flowCopy">The agent begins by discovering every database currently mounted through `DB_DIR` or `DB_PATH`.</p>
+          </div>
+          <pre><code id="flowCode">{
+  "method": "tools/call",
+  "params": {
+    "name": "list_databases",
+    "arguments": {}
+  }
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="quick-start">
+      <div class="section-heading reveal">
+        <span class="section-kicker">03 / QUICK START</span>
+        <h2>Connect in minutes.</h2>
+        <p>Choose the route that fits your environment.</p>
+      </div>
+
+      <div class="setup-shell reveal">
+        <div class="setup-tabs" role="tablist" aria-label="Setup operating system">
+          <button class="setup-tab active" type="button" data-target="setup-mac">macOS / Linux</button>
+          <button class="setup-tab" type="button" data-target="setup-windows">Windows</button>
+          <button class="setup-tab" type="button" data-target="setup-manual">Manual config</button>
+        </div>
+        <div class="setup-panel active" id="setup-mac">
+          <ol class="steps">
+            <li><span>01</span><div><strong>Clone the repository</strong><p>Bring the bridge into your local workspace.</p></div><div class="code-row"><code>git clone https://github.com/buvaneswaraneb/mcp-database-bridge.git</code><button class="copy-button" type="button" aria-label="Copy command">Copy</button></div></li>
+            <li><span>02</span><div><strong>Run automated setup</strong><p>Creates the virtual environment, installs dependencies, and updates Claude Desktop.</p></div><div class="code-row"><code>chmod +x setup.sh &amp;&amp; ./setup.sh</code><button class="copy-button" type="button" aria-label="Copy command">Copy</button></div></li>
+            <li><span>03</span><div><strong>Restart Claude Desktop</strong><p>Completely quit the app, reopen it, then verify `database-mcp` is connected.</p></div><div class="step-state">READY TO QUERY</div></li>
+          </ol>
+        </div>
+        <div class="setup-panel" id="setup-windows">
+          <ol class="steps">
+            <li><span>01</span><div><strong>Clone and enter the project</strong><p>Use PowerShell or Command Prompt.</p></div><div class="code-row"><code>git clone https://github.com/buvaneswaraneb/mcp-database-bridge.git</code><button class="copy-button" type="button" aria-label="Copy command">Copy</button></div></li>
+            <li><span>02</span><div><strong>Run the setup script</strong><p>Installs the Python environment and configures Claude Desktop.</p></div><div class="code-row"><code>setup.bat</code><button class="copy-button" type="button" aria-label="Copy command">Copy</button></div></li>
+            <li><span>03</span><div><strong>Restart Claude Desktop</strong><p>Close the application completely before reopening it.</p></div><div class="step-state">READY TO QUERY</div></li>
+          </ol>
+        </div>
+        <div class="setup-panel" id="setup-manual">
+          <div class="manual-grid">
+            <div>
+              <span class="panel-label">CLAUDE CODE</span>
+              <p>Register the MCP server using the Python executable from your virtual environment.</p>
+              <div class="code-block"><button class="copy-button" type="button" aria-label="Copy command">Copy</button><code>python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+claude mcp add database-mcp .venv/bin/python src/server.py</code></div>
+            </div>
+            <div>
+              <span class="panel-label">ENVIRONMENT</span>
+              <p>Mount a directory of databases or a single explicit database path.</p>
+              <div class="code-block"><button class="copy-button" type="button" aria-label="Copy environment example">Copy</button><code>DB_DIR=/absolute/path/to/databases
+DB_PATH=/absolute/path/to/example.db</code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tools">
+      <div class="section-heading reveal">
+        <span class="section-kicker">04 / TOOL REFERENCE</span>
+        <h2>Six focused capabilities.</h2>
+        <p>Everything an agent needs to discover, inspect, and safely query local SQLite data.</p>
+      </div>
+      <div class="tools-grid">
+        <article class="tool-card reveal"><span class="tool-method">UI</span><h3>open_database_manager</h3><p>Launch the FastAPI-powered browser manager for uploading and deleting database files.</p><code>{ }</code></article>
+        <article class="tool-card reveal"><span class="tool-method">GET</span><h3>list_databases</h3><p>Return the names of all `.db` and `.sqlite` files available to the bridge.</p><code>{ }</code></article>
+        <article class="tool-card reveal"><span class="tool-method">GET</span><h3>list_tables</h3><p>List tables inside the selected database.</p><code>{ "db_name": "sample.db" }</code></article>
+        <article class="tool-card reveal"><span class="tool-method">GET</span><h3>get_schema</h3><p>Inspect names, types, and nullability for every column in a table.</p><code>{ "table_name": "orders" }</code></article>
+        <article class="tool-card reveal"><span class="tool-method secure">SAFE</span><h3>run_select</h3><p>Execute a validated `SELECT` statement and return up to 100 rows.</p><code>{ "query": "SELECT * FROM orders" }</code></article>
+        <article class="tool-card reveal"><span class="tool-method">PLAN</span><h3>explain_query</h3><p>Return SQLite's execution plan to help diagnose and optimize a query.</p><code>{ "query": "SELECT * FROM orders" }</code></article>
+      </div>
+    </section>
+
+    <section class="section debugger-section" id="debugging">
+      <div class="section-heading reveal">
+        <span class="section-kicker">05 / DEBUGGING</span>
+        <h2>Test the safety boundary.</h2>
+        <p>Enter a query to preview how the bridge's read-only guard will classify it.</p>
+      </div>
+
+      <div class="query-lab reveal">
+        <div class="lab-header"><span>QUERY SAFETY PLAYGROUND</span><span class="lab-status" id="labStatus"><i></i> waiting for query</span></div>
+        <div class="lab-body">
+          <label for="queryInput">SQL input</label>
+          <textarea id="queryInput" spellcheck="false">SELECT name, price
+FROM products
+ORDER BY price DESC
+LIMIT 3;</textarea>
+          <div class="lab-actions">
+            <div>
+              <button class="chip query-example" type="button" data-query="SELECT * FROM customers LIMIT 10;">Safe SELECT</button>
+              <button class="chip query-example" type="button" data-query="DROP TABLE customers;">Blocked DROP</button>
+              <button class="chip query-example" type="button" data-query="PRAGMA table_info(customers);">Blocked PRAGMA</button>
+            </div>
+            <button class="button button-small" id="checkQuery" type="button">Check query</button>
+          </div>
+        </div>
+        <div class="lab-result allowed" id="labResult">
+          <span class="result-code">200 / ALLOWED</span>
+          <div><strong>Read-only policy passed.</strong><p>This query begins with SELECT and contains no blocked write keywords.</p></div>
+        </div>
+      </div>
+
+      <div class="troubleshooting reveal">
+        <div class="trouble-header">
+          <div><span class="panel-label">TROUBLESHOOTING INDEX</span><h3>Find the fault faster.</h3></div>
+          <input type="search" id="troubleSearch" placeholder="Filter by symptom..." aria-label="Filter troubleshooting tips">
+        </div>
+        <div class="accordion" id="troubleAccordion">
+          <article class="accordion-item" data-search="no databases found db_dir db_path path file">
+            <button type="button" aria-expanded="false"><span><i>01</i>No databases found</span><b>+</b></button>
+            <div class="accordion-content"><p>Confirm `DB_DIR` points to a readable directory containing `.db` or `.sqlite` files. If using `DB_PATH`, make sure it is an absolute path to an existing file.</p><code>DB_DIR=/absolute/path/to/sample_data</code></div>
+          </article>
+          <article class="accordion-item" data-search="multiple databases specify db_name available">
+            <button type="button" aria-expanded="false"><span><i>02</i>Multiple databases available</span><b>+</b></button>
+            <div class="accordion-content"><p>When more than one database is mounted, include `db_name` in tool arguments so the bridge can resolve the correct file.</p><code>{ "db_name": "sample.db" }</code></div>
+          </article>
+          <article class="accordion-item" data-search="claude desktop server disconnected config restart command path">
+            <button type="button" aria-expanded="false"><span><i>03</i>Claude cannot connect to the server</span><b>+</b></button>
+            <div class="accordion-content"><p>Use absolute paths in `claude_desktop_config.json`, verify the virtual environment exists, and completely restart Claude Desktop after changing configuration.</p><code>claude mcp list</code></div>
+          </article>
+          <article class="accordion-item" data-search="query blocked select forbidden keyword pragma update drop write">
+            <button type="button" aria-expanded="false"><span><i>04</i>A query is unexpectedly blocked</span><b>+</b></button>
+            <div class="accordion-content"><p>The guard rejects queries containing `INSERT`, `UPDATE`, `DELETE`, `DROP`, `CREATE`, `ALTER`, `TRUNCATE`, or `PRAGMA`. Keep the statement to a direct `SELECT` query.</p><code>SELECT * FROM products LIMIT 20;</code></div>
+          </article>
+          <article class="accordion-item" data-search="web manager port 8000 uvicorn upload api browser">
+            <button type="button" aria-expanded="false"><span><i>05</i>Database Manager does not open</span><b>+</b></button>
+            <div class="accordion-content"><p>Start the manager directly and inspect the terminal output. Ensure port `8000` is free and all requirements are installed.</p><code>python -m uvicorn src.web:app --port 8000</code></div>
+          </article>
+        </div>
+        <p class="no-results" id="noResults">No matching debugging tip found.</p>
+      </div>
+    </section>
+
+    <section class="section" id="team">
+      <div class="team-banner reveal">
+        <div>
+          <span class="section-kicker">06 / BUILT BY</span>
+          <h2>Infinite Inovators</h2>
+          <p>A team project focused on making local data useful to AI agents without giving away control.</p>
+        </div>
+        <div class="team-list" aria-label="Team members">
+          <div><span>01</span><strong>S.B. Jaisree</strong></div>
+          <div><span>02</span><strong>Buvaneswaran E</strong></div>
+          <div><span>03</span><strong>P Vishal Kanna</strong></div>
+          <div><span>04</span><strong>Rithish R</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing-cta reveal">
+      <span class="section-kicker">LOCAL DATA / CONTROLLED ACCESS</span>
+      <h2>Give your agent context,<br>not control.</h2>
+      <div>
+        <a class="button" href="#quick-start">Connect the bridge</a>
+        <a class="text-link" href="https://github.com/buvaneswaraneb/mcp-database-bridge" target="_blank" rel="noreferrer">Read the source <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#top" aria-label="MCP Database Bridge home"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>DB<span class="brand-slash">/</span>BRIDGE</span></a>
+    <p>Read-only SQLite access through Model Context Protocol.</p>
+    <p>Infinite Inovators · 2026</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status">Copied to clipboard</div>
+  <script src="script.js"></script>
+</body>
+</html>

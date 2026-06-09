@@ -61,31 +61,18 @@ set "PYTHON_PATH=%PYTHON_PATH:\=\\%"
 set "SERVER_PATH=%SERVER_PATH:\=\\%"
 set "DB_PATH=%DB_PATH:\=\\%"
 
-:: 5. Verify Claude Desktop is installed
+:: 5. Configure Claude Desktop
 echo.
-echo [Step 5/5] Verifying Claude Desktop installation...
+echo [Step 5/5] Configuring Claude Desktop...
 set "CONFIG_DIR=%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude"
+set "CONFIG_FILE=%CONFIG_DIR%\claude_desktop_config.json"
 
-if not exist "%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc" (
-    echo ⚠️  WARNING: Claude Desktop does not appear to be installed.
-    echo Claude Desktop should be installed from https://claude.ai/download
-    echo.
-    echo Setup can continue, but you'll need to manually configure the MCP server.
-    echo Would you like to continue anyway? (Y/N)
-    set /p continue_setup="Your choice: "
-    if /i not "!continue_setup!"=="Y" (
-        goto :end_error
-    )
-)
+echo Target config: %CONFIG_FILE%
 
-echo Creating Claude config directory if needed...
 if not exist "%CONFIG_DIR%" (
     mkdir "%CONFIG_DIR%"
     if errorlevel 1 goto :error_config_dir
 )
-
-set "CONFIG_FILE=%CONFIG_DIR%\claude_desktop_config.json"
-echo Target config: %CONFIG_FILE%
 
 if not exist "%CONFIG_FILE%" (
     echo {} > "%CONFIG_FILE%"
@@ -128,19 +115,16 @@ goto :end_error
 :error_config_dir
 echo.
 echo ❌ ERROR [Step 5]: Failed to create Claude config directory at %CONFIG_DIR%.
-echo Please ensure you have permission to write to %LOCALAPPDATA% or install Claude Desktop.
 goto :end_error
 
 :error_config_file
 echo.
 echo ❌ ERROR [Step 5]: Failed to create Claude config file at %CONFIG_FILE%.
-echo Please ensure Claude Desktop is properly installed and you have write permissions.
 goto :end_error
 
 :error_python_config
 echo.
 echo ❌ ERROR [Step 5]: Python script failed to update %CONFIG_FILE%.
-echo This may occur if Claude Desktop is not properly installed.
 goto :end_error
 
 :end_error

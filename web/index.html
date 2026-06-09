@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Manager - MCP Bridge</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-theme">
+    <div class="theme-toggle" id="themeToggle" title="Toggle Theme">
+        <i data-lucide="moon"></i>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <i data-lucide="database" class="logo-icon"></i>
+                <h1>MCP Database Manager</h1>
+            </div>
+            <p class="subtitle">Manage the SQLite databases mounted to your Claude Desktop context.</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <div class="upload-box" id="dropZone">
+                    <input type="file" id="fileInput" accept=".db,.sqlite" hidden>
+                    <i data-lucide="upload-cloud" class="upload-icon"></i>
+                    <h2>Upload Database</h2>
+                    <p>Drag and drop a <span>.db</span> or <span>.sqlite</span> file here, or click to browse.</p>
+                </div>
+            </section>
+
+            <section class="database-list-section">
+                <div class="section-header">
+                    <h2>Available Databases</h2>
+                    <button class="refresh-btn" id="refreshBtn" title="Refresh list">
+                        <i data-lucide="refresh-cw"></i>
+                    </button>
+                </div>
+
+                <div id="loadingState" class="loading">
+                    <i data-lucide="loader-2" class="spin"></i>
+                    <p>Loading databases...</p>
+                </div>
+
+                <div id="emptyState" class="empty-state hidden">
+                    <i data-lucide="inbox"></i>
+                    <p>No databases found in the sample_data directory.</p>
+                </div>
+
+                <div class="db-grid" id="dbGrid">
+                    <!-- Database cards will be injected here via JS -->
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>MCP Database Bridge &mdash; Read-only SQLite safety layer.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -53,6 +53,65 @@ Double-click `setup.bat` or run it from your command prompt:
 setup.bat
 ```
 </details>
+## Manual Installation for Claude Desktop
+
+### Windows
+
+1. Locate the Claude Desktop configuration file:
+   `%LOCALAPPDATA%\\Packages\\Claude_pzs8sxrjxfjjc\\LocalCache\\Roaming\\Claude\\claude_desktop_config.json`
+
+2. Open the file in a text editor (e.g., Notepad).
+
+3. Add the MCP server entry under the `mcpServers` object. Example:
+
+```json
+{
+  "mcpServers": {
+    "database-mcp": {
+      "command": "C:\\Path\\To\\Project\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Path\\To\\Project\\src\\server.py"],
+      "env": {
+        "DB_PATH": "C:\\Path\\To\\Project\\sample.db"
+      }
+    }
+  }
+}
+```
+
+> **Tip:** Use double backslashes (`\\\\`) to escape Windows paths in JSON.
+
+### macOS / Linux
+
+1. The configuration file lives at:
+   `$HOME/Library/Application Support/Claude/claude_desktop_config.json`
+
+2. Open it with your favorite editor (e.g., `code`, `nano`, `vim`).
+
+3. Insert the MCP server entry (adjust paths to your checkout location):
+
+```json
+{
+  "mcpServers": {
+    "database-mcp": {
+      "command": "/absolute/path/to/.venv/bin/python",
+      "args": ["/absolute/path/to/src/server.py"],
+      "env": {
+        "DB_PATH": "/absolute/path/to/sample.db"
+      }
+    }
+  }
+}
+```
+
+4. Save the file.
+
+### Verify the integration
+
+1. Restart Claude Desktop (quit and reopen).
+2. Look for the plug (🔌) icon in the chat bar – it indicates the MCP server is loaded.
+3. In a Claude chat, run a tool like `list_tables` to confirm the server responds.
+
+---
 
 ### 3. Restart Claude
 Once the script finishes, **completely quit Claude Desktop** (Cmd+Q / Ctrl+Q) and reopen it. Look for the 🔌 (plug) icon in the chat bar to verify that `database-mcp` is connected!

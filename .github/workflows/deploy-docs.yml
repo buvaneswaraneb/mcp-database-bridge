@@ -1,8 +1,9 @@
-name: Deploy documentation site
+name: Deploy docs/web to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
     paths:
       - "docs/web/**"
       - ".github/workflows/deploy-docs.yml"
@@ -14,24 +15,37 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: github-pages
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    name: Verify and deploy documentation
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Verify static documentation
+        run: |
+          test -f docs/web/index.html
+          test -f docs/web/style.css
+          test -f docs/web/script.js
+          test -f docs/web/.nojekyll
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Upload documentation
+
+      - name: Upload docs/web artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/web
+          path: ./docs/web
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

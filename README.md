@@ -1,7 +1,6 @@
 <div align="center">
   <img src="img/logo_txt.png" alt="Infinite Inovators Logo" width="360" />
   <br />
-  <sub><samp>READ-ONLY SQLITE ACCESS FOR AI AGENTS</samp></sub>
   <h2><samp>DB&nbsp;/&nbsp;BRIDGE</samp></h2>
   
   <p><b>A secure, read-only Model Context Protocol (MCP) server that empowers Claude Desktop and other AI agents to safely query and inspect local SQLite databases.</b></p>
@@ -186,9 +185,9 @@ Curious how it works under the hood?
   <h2>Infinite Inovators</h2>
   <p><sub><samp>PROJECT TEAM</samp></sub></p>
   <p>
-    <b>S.B. Jaisree</b><br />
-    <b>Buvaneswaran E</b><br />
-    <b>P Vishal Kanna</b><br />
+    <b>S.B. Jaisree</b> &nbsp;|&nbsp;
+    <b>Buvaneswaran E</b> &nbsp;|&nbsp;
+    <b>P Vishal Kanna</b> &nbsp;|&nbsp;
     <b>Rithish R</b>
   </p>
   <sub>Built with care for controlled, agent-readable data access.</sub>

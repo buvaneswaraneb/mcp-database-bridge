@@ -1,27 +1,71 @@
 """
 Database MCP Server
-Exposes: list_tables, get_schema, run_select (read-only), explain_query
+Exposes: list_databases, list_tables, get_schema, run_select (read-only), explain_query
 Safe SQL execution — no writes allowed.
 Compatible with Claude Desktop + custom agents.
 """
 import os, json, sqlite3, re
 from pathlib import Path
-
-# MCP Server using stdio transport (works with Claude Desktop)
 import sys
 
-DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).resolve().parents[1] / "sample_data" / "sample.db"))
+# Default directory for databases
+DEFAULT_DB_DIR = Path(__file__).resolve().parents[1] / "sample_data"
+DB_DIR = os.environ.get("DB_DIR", str(DEFAULT_DB_DIR))
+DB_PATH = os.environ.get("DB_PATH")
 
 
-def get_connection():
-    conn = sqlite3.connect(DB_PATH)
+def get_available_databases() -> dict:
+    """Scan DB_DIR and check DB_PATH to build a registry of available databases."""
+    databases = {}
+    
+    # 1. Scan DB_DIR for .db and .sqlite files
+    if DB_DIR and os.path.isdir(DB_DIR):
+        for f in os.listdir(DB_DIR):
+            if f.endswith(".db") or f.endswith(".sqlite"):
+                databases[f] = os.path.join(DB_DIR, f)
+                
+    # 2. Add DB_PATH if explicitly provided (overrides directory scan if name matches)
+    if DB_PATH and os.path.isfile(DB_PATH):
+        name = os.path.basename(DB_PATH)
+        databases[name] = DB_PATH
+        
+    return databases
+
+
+def resolve_db_path(db_name: str = None) -> str:
+    """Resolve the requested database name to an absolute file path."""
+    databases = get_available_databases()
+    
+    if not databases:
+        raise ValueError("No databases found. Please ensure DB_DIR contains .db files or set DB_PATH.")
+        
+    if db_name:
+        if db_name not in databases:
+            raise ValueError(f"Database '{db_name}' not found. Available databases: {', '.join(databases.keys())}")
+        return databases[db_name]
+        
+    # If no db_name provided:
+    if len(databases) == 1:
+        return list(databases.values())[0]
+    else:
+        raise ValueError(f"Multiple databases available. Please specify 'db_name'. Available: {', '.join(databases.keys())}")
+
+
+def get_connection(db_name: str = None):
+    path = resolve_db_path(db_name)
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_sample_db():
-    """Create a sample database for demo."""
-    conn = get_connection()
+    """Create a sample database for demo if sample_data is empty or missing sample.db."""
+    os.makedirs(DEFAULT_DB_DIR, exist_ok=True)
+    sample_db_path = DEFAULT_DB_DIR / "sample.db"
+    
+    # Always try to connect to the sample_db path to ensure it exists
+    conn = sqlite3.connect(str(sample_db_path))
+    conn.row_factory = sqlite3.Row
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY, name TEXT, email TEXT, created_at TEXT
@@ -46,26 +90,37 @@ def init_sample_db():
     conn.close()
 
 
-def list_tables() -> dict:
-    conn = get_connection()
-    rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
-    conn.close()
-    return {"tables": [r["name"] for r in rows]}
+def list_databases() -> dict:
+    databases = get_available_databases()
+    return {"databases": list(databases.keys())}
 
 
-def get_schema(table_name: str) -> dict:
-    conn = get_connection()
-    rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
-    conn.close()
-    if not rows:
-        return {"error": f"Table '{table_name}' not found"}
-    return {
-        "table": table_name,
-        "columns": [{"name": r["name"], "type": r["type"], "nullable": not r["notnull"]} for r in rows]
-    }
+def list_tables(db_name: str = None) -> dict:
+    try:
+        conn = get_connection(db_name)
+        rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+        conn.close()
+        return {"tables": [r["name"] for r in rows]}
+    except Exception as e:
+        return {"error": str(e)}
 
 
-def run_select(query: str) -> dict:
+def get_schema(table_name: str, db_name: str = None) -> dict:
+    try:
+        conn = get_connection(db_name)
+        rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+        conn.close()
+        if not rows:
+            return {"error": f"Table '{table_name}' not found"}
+        return {
+            "table": table_name,
+            "columns": [{"name": r["name"], "type": r["type"], "nullable": not r["notnull"]} for r in rows]
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def run_select(query: str, db_name: str = None) -> dict:
     """Execute a SELECT query only — rejects any write operations."""
     cleaned = query.strip().upper()
     forbidden = ["INSERT", "UPDATE", "DELETE", "DROP", "CREATE", "ALTER", "TRUNCATE", "PRAGMA"]
@@ -77,7 +132,7 @@ def run_select(query: str) -> dict:
         return {"error": "Only SELECT queries are allowed."}
 
     try:
-        conn = get_connection()
+        conn = get_connection(db_name)
         rows = conn.execute(query).fetchmany(100)  # max 100 rows
         conn.close()
         return {
@@ -89,10 +144,10 @@ def run_select(query: str) -> dict:
         return {"error": str(e)}
 
 
-def explain_query(query: str) -> dict:
+def explain_query(query: str, db_name: str = None) -> dict:
     """Return SQLite EXPLAIN QUERY PLAN output."""
     try:
-        conn = get_connection()
+        conn = get_connection(db_name)
         rows = conn.execute(f"EXPLAIN QUERY PLAN {query}").fetchall()
         conn.close()
         return {"plan": [dict(r) for r in rows]}
@@ -102,21 +157,25 @@ def explain_query(query: str) -> dict:
 
 # ── MCP stdio server ──────────────────────────────────────────────────────────
 TOOLS = {
-    "list_tables": {
-        "description": "List all tables in the database",
+    "list_databases": {
+        "description": "List all available databases",
         "inputSchema": {"type": "object", "properties": {}, "required": []}
+    },
+    "list_tables": {
+        "description": "List all tables in a specific database",
+        "inputSchema": {"type": "object", "properties": {"db_name": {"type": "string"}}, "required": []}
     },
     "get_schema": {
         "description": "Get column names and types for a specific table",
-        "inputSchema": {"type": "object", "properties": {"table_name": {"type": "string"}}, "required": ["table_name"]}
+        "inputSchema": {"type": "object", "properties": {"table_name": {"type": "string"}, "db_name": {"type": "string"}}, "required": ["table_name"]}
     },
     "run_select": {
         "description": "Execute a read-only SELECT query (no writes allowed)",
-        "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}
+        "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "db_name": {"type": "string"}}, "required": ["query"]}
     },
     "explain_query": {
         "description": "Get the query execution plan for a SELECT query",
-        "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}
+        "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "db_name": {"type": "string"}}, "required": ["query"]}
     },
 }
 
@@ -148,15 +207,18 @@ def handle_request(req: dict):
         params = req.get("params", {})
         tool_name = params.get("name")
         args = params.get("arguments", {})
+        db_name = args.get("db_name")
 
-        if tool_name == "list_tables":
-            result = list_tables()
+        if tool_name == "list_databases":
+            result = list_databases()
+        elif tool_name == "list_tables":
+            result = list_tables(db_name)
         elif tool_name == "get_schema":
-            result = get_schema(args.get("table_name", ""))
+            result = get_schema(args.get("table_name", ""), db_name)
         elif tool_name == "run_select":
-            result = run_select(args.get("query", ""))
+            result = run_select(args.get("query", ""), db_name)
         elif tool_name == "explain_query":
-            result = explain_query(args.get("query", ""))
+            result = explain_query(args.get("query", ""), db_name)
         else:
             result = {"error": f"Unknown tool: {tool_name}"}
 

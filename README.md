@@ -25,39 +25,96 @@
 
 ---
 
-## ⚡ Quick Start (Claude Desktop)
+## Quick Start
 
-We provide automated setup scripts to seamlessly inject the MCP server into your `claude_desktop_config.json`.
+The setup scripts create a Python virtual environment, install dependencies, and register `database-mcp` in Claude Desktop.
 
-### 1. Clone the repository
+### Prerequisites
+
+- Python 3.11 or newer
+- Git
+- Claude Desktop
+
+<br />
+
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/buvaneswaraneb/mcp-database-bridge.git
 cd mcp-database-bridge
 ```
 
-### 2. Run the Setup Script
-Choose the script for your operating system to automatically install dependencies and configure Claude:
+<br />
 
-<details open>
-<summary><b>🍎 Mac / 🐧 Linux</b></summary>
+### 2. Run the Setup Script
+
+Choose the instructions for your operating system.
+
+<details>
+<summary><b>macOS / Linux</b></summary>
+
+<br />
+
+Run:
 
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
+
+After setup completes:
+
+1. Completely quit Claude Desktop.
+   - On macOS, press `Cmd + Q`.
+   - On Linux, quit Claude from the application menu.
+2. Reopen Claude Desktop.
+3. Open a new chat and confirm that `database-mcp` appears in the available tools.
+
 </details>
 
-<details open>
-<summary><b>🪟 Windows</b></summary>
+<br />
 
-Double-click `setup.bat` or run it from your command prompt:
+<details open>
+<summary><b>Windows</b></summary>
+
+<br />
+
+Run `setup.bat` from Command Prompt:
+
 ```cmd
 setup.bat
 ```
+
+You can also double-click `setup.bat` from File Explorer.
+
+#### Completely Restart Claude Desktop on Windows
+
+Closing the Claude window may leave it running in the background. Fully stop it before reopening:
+
+1. Press `Ctrl + Shift + Esc` to open **Task Manager**.
+2. Select the **Processes** tab.
+3. Find **Claude** under **Apps** or **Background processes**.
+4. Select each Claude process and click **End task**.
+5. Wait a few seconds, then reopen Claude Desktop.
+
+If Claude does not appear under **Processes**, open the **Details** tab and end any `Claude.exe` processes.
+
 </details>
 
-### 3. Restart Claude
-Once the script finishes, **completely quit Claude Desktop** (Cmd+Q / Ctrl+Q) and reopen it. Look for the 🔌 (plug) icon in the chat bar to verify that `database-mcp` is connected!
+<br />
+
+### 3. Verify the Connection
+
+In Claude Desktop:
+
+1. Open a new chat.
+2. Open the tools or integrations menu.
+3. Confirm that `database-mcp` is connected.
+4. Ask: `What databases are available?`
+
+If the server is not listed, completely stop Claude Desktop again and reopen it.
+
+<br />
 
 ---
 
@@ -126,5 +183,13 @@ Curious how it works under the hood?
 
 ---
 <div align="center">
-  <i></i>
+  <h2>Infinite Inovators</h2>
+  <p><sub><samp>PROJECT TEAM</samp></sub></p>
+  <p>
+    <b>S.B. Jaisree</b><br />
+    <b>Buvaneswaran E</b><br />
+    <b>P Vishal Kanna</b><br />
+    <b>Rithish R</b>
+  </p>
+  <sub>Built with care for controlled, agent-readable data access.</sub>
 </div>

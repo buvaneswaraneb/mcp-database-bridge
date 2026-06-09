@@ -64,7 +64,7 @@ set "DB_PATH=%DB_PATH:\=\\%"
 :: 5. Configure Claude Desktop
 echo.
 echo [Step 5/5] Configuring Claude Desktop...
-set "CONFIG_DIR=%APPDATA%\Claude"
+set "CONFIG_DIR=%LOCALAPPDATA%\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude"
 set "CONFIG_FILE=%CONFIG_DIR%\claude_desktop_config.json"
 
 echo Target config: %CONFIG_FILE%

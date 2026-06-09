@@ -15,6 +15,22 @@
 
 ---
 
+## **Demo Video**
+
+Click the preview below to watch the MCP Database Bridge project demonstration on YouTube.
+
+<p align="center">
+  <a href="https://youtu.be/PGUQi27JBAw">
+    <img src="https://img.youtube.com/vi/PGUQi27JBAw/maxresdefault.jpg" alt="Watch the MCP Database Bridge Demo Video on YouTube" width="720">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/PGUQi27JBAw"><b>Watch the Demo Video on YouTube</b></a>
+</p>
+
+---
+
 ## ✨ Features
 
 - 🛡️ **Read-Only Safeties**: Strict regex filtering intercepts and rejects destructive operations like `INSERT`, `UPDATE`, `DROP`, and `ALTER`. The AI can look, but it can't touch.
@@ -27,12 +43,6 @@
 ## Quick Start
 
 The setup scripts create a Python virtual environment, install dependencies, and register `database-mcp` in Claude Desktop.
-
-### Setup & Demo Video
-
-Watch the complete installation and project demonstration:
-
-[![Watch the MCP Database Bridge Setup & Demo](https://img.youtube.com/vi/fIfSf9jsOS8/maxresdefault.jpg)](https://youtu.be/fIfSf9jsOS8)
 
 ### Prerequisites
 

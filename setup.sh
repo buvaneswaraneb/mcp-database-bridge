@@ -23,7 +23,7 @@ fi
 PROJECT_DIR="$(pwd)"
 PYTHON_PATH="$PROJECT_DIR/.venv/bin/python"
 SERVER_PATH="$PROJECT_DIR/src/server.py"
-DB_PATH="$PROJECT_DIR/sample.db"
+DB_DIR="$PROJECT_DIR/sample_data"
 
 # 5. Configure Claude Desktop
 CONFIG_DIR="$HOME/Library/Application Support/Claude"
@@ -55,7 +55,7 @@ config['mcpServers']['database-mcp'] = {
     'command': '$PYTHON_PATH',
     'args': ['$SERVER_PATH'],
     'env': {
-        'DB_PATH': '$DB_PATH'
+        'DB_DIR': '$DB_DIR'
     }
 }
 

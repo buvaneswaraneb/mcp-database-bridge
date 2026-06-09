@@ -66,12 +66,12 @@ Add the `database-mcp` server to your `mcpServers` object. Notice that we use th
 {
   "mcpServers": {
     "database-mcp": {
-      "command": "/Users/bharath/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/.venv/bin/python",
+      "command": "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/.venv/bin/python",
       "args": [
-        "/Users/bharath/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/src/server.py"
+        "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/src/server.py"
       ],
       "env": {
-        "DB_PATH": "/Users/bharath/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/sample.db"
+        "DB_DIR": "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/sample_data"
       }
     }
   }

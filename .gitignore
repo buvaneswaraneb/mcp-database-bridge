@@ -10,3 +10,4 @@ build/
 venv/
 .DS_Store
 Thumbs.db
+sample_data/

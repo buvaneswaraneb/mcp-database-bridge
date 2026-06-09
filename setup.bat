@@ -54,12 +54,12 @@ echo [Step 4/5] Configuring paths...
 set "PROJECT_DIR=%CD%"
 set "PYTHON_PATH=%PROJECT_DIR%\.venv\Scripts\python.exe"
 set "SERVER_PATH=%PROJECT_DIR%\src\server.py"
-set "DB_PATH=%PROJECT_DIR%\sample.db"
+set "DB_DIR=%PROJECT_DIR%\sample_data"
 
 :: Escape backslashes for JSON parsing
 set "PYTHON_PATH=%PYTHON_PATH:\=\\%"
 set "SERVER_PATH=%SERVER_PATH:\=\\%"
-set "DB_PATH=%DB_PATH:\=\\%"
+set "DB_DIR=%DB_DIR:\=\\%"
 
 :: 5. Configure Claude Desktop
 echo.
@@ -80,7 +80,7 @@ if not exist "%CONFIG_FILE%" (
 )
 
 :: Use Python to safely update the JSON file
-python -c "import json, os; config_path=r'%CONFIG_FILE%'; f=open(config_path,'r'); config=json.load(f) if os.path.getsize(config_path)>0 else {}; f.close(); config.setdefault('mcpServers',{}); config['mcpServers']['database-mcp']={'command':r'%PYTHON_PATH%','args':[r'%SERVER_PATH%'],'env':{'DB_PATH':r'%DB_PATH%'}}; f=open(config_path,'w'); json.dump(config,f,indent=2); f.close()"
+python -c "import json, os; config_path=r'%CONFIG_FILE%'; f=open(config_path,'r'); config=json.load(f) if os.path.getsize(config_path)>0 else {}; f.close(); config.setdefault('mcpServers',{}); config['mcpServers']['database-mcp']={'command':r'%PYTHON_PATH%','args':[r'%SERVER_PATH%'],'env':{'DB_DIR':r'%DB_DIR%'}}; f=open(config_path,'w'); json.dump(config,f,indent=2); f.close()"
 if errorlevel 1 goto :error_python_config
 
 echo.

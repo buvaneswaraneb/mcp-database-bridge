@@ -33,7 +33,7 @@ def list_databases():
     """List all SQLite databases in the DB_DIR."""
     databases = []
     if os.path.isdir(DB_DIR):
-        for f in os.listdir(DB_DIR):
+        for f in sorted(os.listdir(DB_DIR)):
             if f.endswith(".db") or f.endswith(".sqlite"):
                 filepath = os.path.join(DB_DIR, f)
                 size = os.path.getsize(filepath)

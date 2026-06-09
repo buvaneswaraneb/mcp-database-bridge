@@ -17,6 +17,7 @@ import webbrowser
 DEFAULT_DB_DIR = Path(__file__).resolve().parents[1] / "sample_data"
 DB_DIR = os.environ.get("DB_DIR", str(DEFAULT_DB_DIR))
 DB_PATH = os.environ.get("DB_PATH")
+PROJECT_DIR = Path(__file__).resolve().parents[1]
 
 
 def get_available_databases() -> dict:
@@ -25,7 +26,7 @@ def get_available_databases() -> dict:
     
     # 1. Scan DB_DIR for .db and .sqlite files
     if DB_DIR and os.path.isdir(DB_DIR):
-        for f in os.listdir(DB_DIR):
+        for f in sorted(os.listdir(DB_DIR)):
             if f.endswith(".db") or f.endswith(".sqlite"):
                 databases[f] = os.path.join(DB_DIR, f)
                 
@@ -181,7 +182,13 @@ def open_database_manager() -> dict:
         
         try:
             # We suppress stdout/stderr to avoid polluting the JSON-RPC stdio
-            subprocess.Popen(cmd, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.Popen(
+                cmd,
+                cwd=str(PROJECT_DIR),
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
             time.sleep(1.5)  # Wait for uvicorn to bind the port
         except Exception as e:
             return {"error": f"Failed to start Web UI server: {str(e)}"}

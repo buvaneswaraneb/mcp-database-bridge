@@ -185,9 +185,9 @@ Curious how it works under the hood?
   <h2>Infinite Inovators</h2>
   <p><sub><samp>PROJECT TEAM</samp></sub></p>
   <p>
-    <b>S.B. Jaisree</b> &nbsp;|&nbsp;
     <b>Buvaneswaran E</b> &nbsp;|&nbsp;
     <b>P Vishal Kanna</b> &nbsp;|&nbsp;
+    <b>S.B. Jaisree</b>&nbsp;|&nbsp;
     <b>Rithish R</b>
   </p>
   <sub>Built with care for controlled, agent-readable data access.</sub>

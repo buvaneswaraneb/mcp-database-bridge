@@ -89,8 +89,37 @@ pytest tests/ -v
 
 ## 🏗️ Architecture & Internals
 
+```mermaid
+graph TD
+    A[🤖 Claude Desktop / AI Agents] <-->|stdio JSON-RPC| B{MCP Bridge Router}
+    
+    subgraph Database MCP Server
+        B -->|tools/call: list_tables| C[📋 list_tables]
+        B -->|tools/call: get_schema| D[🔍 get_schema]
+        B -->|tools/call: explain_query| E[📊 explain_query]
+        B -->|tools/call: run_select| F[▶️ run_select]
+        
+        F --> G{🛡️ Read-Only Safeties}
+        G -. Block UPDATE/DROP/INSERT .-> H[❌ Reject]
+        G -- Allow SELECT --> I[✅ Execute]
+    end
+
+    C & D & E & I --> J[(🗄️ SQLite Database)]
+    
+    style A fill:#4B32C3,stroke:#fff,stroke-width:2px,color:#fff
+    style B fill:#2D3748,stroke:#4B32C3,stroke-width:2px,color:#fff
+    style G fill:#9B2C2C,stroke:#FC8181,stroke-width:2px,color:#fff
+    style J fill:#276749,stroke:#68D391,stroke-width:2px,color:#fff
+    style H fill:#E53E3E,stroke:#fff,stroke-width:1px,color:#fff
+    style C fill:#2A4365,stroke:#63B3ED,color:#fff
+    style D fill:#2A4365,stroke:#63B3ED,color:#fff
+    style E fill:#2A4365,stroke:#63B3ED,color:#fff
+    style F fill:#2A4365,stroke:#63B3ED,color:#fff
+    style I fill:#38A169,stroke:#fff,color:#fff
+```
+
 Curious how it works under the hood? 
-- Read [structure.md](structure.md) for a detailed walkthrough of the file architecture and the JSON-RPC execution flow.
+- Read [docs/structure.md](docs/structure.md) for a detailed walkthrough of the file architecture and the JSON-RPC execution flow.
 - Read [docs/ai_usage_note.md](docs/ai_usage_note.md) for notes on how AI was leveraged to build this project.
 
 ---

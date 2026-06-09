@@ -10,7 +10,7 @@ from pathlib import Path
 # MCP Server using stdio transport (works with Claude Desktop)
 import sys
 
-DB_PATH = os.environ.get("DB_PATH", "sample.db")
+DB_PATH = os.environ.get("DB_PATH", str(Path(__file__).resolve().parents[1] / "sample_data" / "sample.db"))
 
 
 def get_connection():

@@ -1,6 +1,6 @@
 import pytest, json, sys
 sys.path.insert(0, 'src')
-from server import list_tables, get_schema, run_select, explain_query, init_sample_db
+from server import list_tables, get_schema, run_select, explain_query, init_sample_db, get_database_metadata
 
 def setup_module():
     init_sample_db()
@@ -34,3 +34,17 @@ def test_run_select_blocks_insert():
 def test_run_select_blocks_drop():
     result = run_select("DROP TABLE customers", "sample.db")
     assert "error" in result
+
+def test_get_database_metadata():
+    result = get_database_metadata("sample.db")
+    assert "database_name" in result
+    assert result["database_name"] == "sample.db"
+    assert "file_size_bytes" in result
+    assert "sqlite_version" in result
+    assert "tables" in result
+    assert len(result["tables"]) > 0
+    customers_table = next((t for t in result["tables"] if t["table_name"] == "customers"), None)
+    assert customers_table is not None
+    assert customers_table["row_count"] == 5
+    assert customers_table["column_count"] == 4
+

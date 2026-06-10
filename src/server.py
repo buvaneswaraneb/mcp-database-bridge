@@ -101,6 +101,51 @@ def list_databases() -> dict:
     return {"databases": list(databases.keys())}
 
 
+def get_database_metadata(db_name: str = None) -> dict:
+    """Get metadata about the database, including file size, sqlite version, tables, and row counts."""
+    try:
+        path = resolve_db_path(db_name)
+        file_size = os.path.getsize(path)
+        
+        conn = get_connection(db_name)
+        version = conn.execute("SELECT sqlite_version()").fetchone()[0]
+        
+        tables_query = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+        tables_info = []
+        
+        for row in tables_query:
+            table_name = row["name"]
+            try:
+                count_row = conn.execute(f"SELECT COUNT(*) FROM [{table_name}]").fetchone()
+                row_count = count_row[0] if count_row else 0
+            except Exception:
+                row_count = -1
+            
+            try:
+                pragma_row = conn.execute(f"PRAGMA table_info([{table_name}])").fetchall()
+                col_count = len(pragma_row)
+            except Exception:
+                col_count = -1
+                
+            tables_info.append({
+                "table_name": table_name,
+                "row_count": row_count,
+                "column_count": col_count
+            })
+            
+        conn.close()
+        
+        return {
+            "database_name": os.path.basename(path),
+            "file_size_bytes": file_size,
+            "sqlite_version": version,
+            "tables": tables_info
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+
 def list_tables(db_name: str = None) -> dict:
     try:
         conn = get_connection(db_name)
@@ -211,6 +256,19 @@ TOOLS = {
         "description": "List all available databases",
         "inputSchema": {"type": "object", "properties": {}, "required": []}
     },
+    "get_database_metadata": {
+        "description": "Get metadata about a database, including SQLite version, file size, table names, row counts, and column counts.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "db_name": {
+                    "type": "string",
+                    "description": "Optional name of the database. If only one database is available, it is selected automatically."
+                }
+            },
+            "required": []
+        }
+    },
     "list_tables": {
         "description": "List all tables in a specific database",
         "inputSchema": {"type": "object", "properties": {"db_name": {"type": "string"}}, "required": []}
@@ -263,6 +321,8 @@ def handle_request(req: dict):
             result = open_database_manager()
         elif tool_name == "list_databases":
             result = list_databases()
+        elif tool_name == "get_database_metadata":
+            result = get_database_metadata(db_name)
         elif tool_name == "list_tables":
             result = list_tables(db_name)
         elif tool_name == "get_schema":

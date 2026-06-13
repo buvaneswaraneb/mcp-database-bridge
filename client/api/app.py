@@ -33,6 +33,7 @@ MODEL_IDS = [
 
 HOSTED_DB_DIR.mkdir(parents=True, exist_ok=True)
 MCP_DIRECTORY_LOCK = threading.RLock()
+mcp_server.init_sample_db()
 
 app = FastAPI(title="DB/BRIDGE Hosted Client", version="1.0.0")
 app.add_middleware(

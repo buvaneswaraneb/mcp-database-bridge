@@ -12,7 +12,7 @@ Claude Code is Anthropic's terminal-based AI assistant. You can easily connect t
 ## Step-by-Step Instructions
 
 ### Step 1: Open your terminal
-Navigate to the root directory of this project where the `src` folder and `.venv` are located.
+Navigate to the root directory of this project, which contains the `mcp` folder and `.venv`.
 
 ```bash
 cd "/Users/bharath/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server"
@@ -24,7 +24,7 @@ We will name the server `database-mcp` and point it to the Python executable ins
 
 Run this command:
 ```bash
-claude mcp add database-mcp .venv/bin/python src/server.py
+claude mcp add database-mcp .venv/bin/python mcp/src/server.py
 ```
 
 ### Step 3: Verify the Server
@@ -68,10 +68,10 @@ Add the `database-mcp` server to your `mcpServers` object. Notice that we use th
     "database-mcp": {
       "command": "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/.venv/bin/python",
       "args": [
-        "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/src/server.py"
+        "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/mcp/src/server.py"
       ],
       "env": {
-        "DB_DIR": "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/sample_data"
+        "DB_DIR": "/Users/usr/Documents/GitHub/INFINITY PLACEMENT/07-database-mcp-server/mcp/sample_data"
       }
     }
   }

@@ -6,22 +6,28 @@ This document explains the file structure of the Database MCP Server project and
 
 ```text
 07-database-mcp-server/
-├── src/
-│   └── server.py                   # The core MCP server script
-├── tests/
-│   └── test_database_mcp_server.py # Unit tests for the server functions
-├── docs/
-│   └── ai_usage_note.md            # Notes on how AI was used to build this project
-├── connect.md                      # Instructions for connecting to Claude Desktop & Code
+├── mcp/
+│   ├── src/
+│   │   ├── server.py               # The core MCP server script
+│   │   └── web.py                  # FastAPI database manager
+│   ├── tests/
+│   │   └── test_database_mcp_server.py
+│   ├── sample_data/                # Local SQLite databases
+│   └── web/                        # Database manager frontend
+├── documentation/
+│   ├── docs/                       # Guides and documentation website
+│   ├── img/                        # README and documentation images
+│   └── resume/                     # Project team resumes
 ├── requirements.txt                # Python dependencies (e.g., anthropic, pytest)
 ├── .env.example                    # Example environment variables (e.g., DB_PATH)
 ├── README.md                       # General project setup and run instructions
-└── sample.db                       # The SQLite database file (created automatically on first run)
+├── setup.sh                        # macOS/Linux setup script
+└── setup.bat                       # Windows setup script
 ```
 
 ---
 
-## How the Code Works (`src/server.py`)
+## How the Code Works (`mcp/src/server.py`)
 
 The Model Context Protocol (MCP) is a standard that allows AI models (like Claude) to interact securely with external tools and data sources. This specific project acts as a bridge between Claude and a local SQLite database.
 

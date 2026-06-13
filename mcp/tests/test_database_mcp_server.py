@@ -1,5 +1,5 @@
 import pytest, json, sys
-sys.path.insert(0, 'src')
+sys.path.insert(0, 'mcp/src')
 from server import list_tables, get_schema, run_select, explain_query, init_sample_db, get_database_metadata
 
 def setup_module():
@@ -23,6 +23,10 @@ def test_get_schema_unknown_table():
     result = get_schema("nonexistent_table", "sample.db")
     assert "error" in result
 
+def test_get_schema_rejects_invalid_identifier():
+    result = get_schema("customers); DROP TABLE customers; --", "sample.db")
+    assert "error" in result
+
 def test_run_select_allowed():
     result = run_select("SELECT * FROM customers LIMIT 2", "sample.db")
     assert "rows" in result
@@ -33,6 +37,10 @@ def test_run_select_blocks_insert():
 
 def test_run_select_blocks_drop():
     result = run_select("DROP TABLE customers", "sample.db")
+    assert "error" in result
+
+def test_explain_query_blocks_writes():
+    result = explain_query("DELETE FROM customers", "sample.db")
     assert "error" in result
 
 def test_get_database_metadata():
@@ -47,4 +55,3 @@ def test_get_database_metadata():
     assert customers_table is not None
     assert customers_table["row_count"] == 5
     assert customers_table["column_count"] == 4
-

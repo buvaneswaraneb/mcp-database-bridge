@@ -22,8 +22,8 @@ fi
 # 4. Get absolute paths
 PROJECT_DIR="$(pwd)"
 PYTHON_PATH="$PROJECT_DIR/.venv/bin/python"
-SERVER_PATH="$PROJECT_DIR/src/server.py"
-DB_DIR="$PROJECT_DIR/sample_data"
+SERVER_PATH="$PROJECT_DIR/mcp/src/server.py"
+DB_DIR="$PROJECT_DIR/mcp/sample_data"
 
 # 5. Configure Claude Desktop
 CONFIG_DIR="$HOME/Library/Application Support/Claude"

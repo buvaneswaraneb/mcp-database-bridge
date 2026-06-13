@@ -1,11 +1,11 @@
-name: Deploy docs/web to GitHub Pages
+name: Deploy documentation/docs/web to GitHub Pages
 
 on:
   push:
     branches:
       - main
     paths:
-      - "docs/web/**"
+      - "documentation/docs/web/**"
       - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
@@ -33,18 +33,18 @@ jobs:
 
       - name: Verify static documentation
         run: |
-          test -f docs/web/index.html
-          test -f docs/web/style.css
-          test -f docs/web/script.js
-          test -f docs/web/.nojekyll
+          test -f documentation/docs/web/index.html
+          test -f documentation/docs/web/style.css
+          test -f documentation/docs/web/script.js
+          test -f documentation/docs/web/.nojekyll
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload docs/web artifact
+      - name: Upload documentation website artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/web
+          path: ./documentation/docs/web
 
       - name: Deploy to GitHub Pages
         id: deployment

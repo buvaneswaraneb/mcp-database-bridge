@@ -59,9 +59,14 @@ def resolve_db_path(db_name: str = None) -> str:
 
 def get_connection(db_name: str = None):
     path = resolve_db_path(db_name)
-    conn = sqlite3.connect(path)
+    conn = sqlite3.connect(f"file:{Path(path).resolve()}?mode=ro", uri=True, timeout=5)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def valid_identifier(value: str) -> bool:
+    """Allow only simple SQLite identifiers for schema inspection."""
+    return bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", value or ""))
 
 
 def init_sample_db():
@@ -157,9 +162,11 @@ def list_tables(db_name: str = None) -> dict:
 
 
 def get_schema(table_name: str, db_name: str = None) -> dict:
+    if not valid_identifier(table_name):
+        return {"error": "Invalid table name"}
     try:
         conn = get_connection(db_name)
-        rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+        rows = conn.execute(f"PRAGMA table_info([{table_name}])").fetchall()
         conn.close()
         if not rows:
             return {"error": f"Table '{table_name}' not found"}
@@ -197,6 +204,10 @@ def run_select(query: str, db_name: str = None) -> dict:
 
 def explain_query(query: str, db_name: str = None) -> dict:
     """Return SQLite EXPLAIN QUERY PLAN output."""
+    cleaned = query.strip().upper()
+    forbidden = ["INSERT", "UPDATE", "DELETE", "DROP", "CREATE", "ALTER", "TRUNCATE", "PRAGMA"]
+    if not cleaned.startswith("SELECT") or any(re.search(rf"\b{kw}\b", cleaned) for kw in forbidden):
+        return {"error": "Only read-only SELECT queries can be explained."}
     try:
         conn = get_connection(db_name)
         rows = conn.execute(f"EXPLAIN QUERY PLAN {query}").fetchall()

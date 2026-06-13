@@ -53,8 +53,8 @@ echo.
 echo [Step 4/5] Configuring paths...
 set "PROJECT_DIR=%CD%"
 set "PYTHON_PATH=%PROJECT_DIR%\.venv\Scripts\python.exe"
-set "SERVER_PATH=%PROJECT_DIR%\src\server.py"
-set "DB_DIR=%PROJECT_DIR%\sample_data"
+set "SERVER_PATH=%PROJECT_DIR%\mcp\src\server.py"
+set "DB_DIR=%PROJECT_DIR%\mcp\sample_data"
 
 :: Escape backslashes for JSON parsing
 set "PYTHON_PATH=%PYTHON_PATH:\=\\%"

@@ -113,6 +113,8 @@ code, pre, .section-kicker, .eyebrow, .panel-label, .tool-method, .card-index, .
 }
 .button:hover { transform: translateY(-2px); background: color-mix(in srgb, var(--accent) 86%, white); }
 .button-small { min-height: 38px; padding: 0 14px; font-size: .72rem; }
+.button-outline { color: var(--accent); background: transparent; }
+.button-outline:hover { color: var(--accent-dark); }
 .text-link { display: inline-flex; gap: 9px; align-items: center; color: var(--muted); font-size: .82rem; font-weight: 700; }
 .text-link span { color: var(--accent); transition: transform .2s ease; }
 .text-link:hover span { transform: translateX(4px); }

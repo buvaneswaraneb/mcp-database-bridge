@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="img/logo_txt.png" alt="Infinite Inovators Logo" width="360" />
+  <img src="documentation/img/logo_txt.png" alt="Infinite Inovators Logo" width="360" />
   <br />
   <h2><samp>DB&nbsp;/&nbsp;BRIDGE</samp></h2>
   
@@ -43,6 +43,32 @@ Click the preview below to watch the MCP Database Bridge project demonstration o
 ## Quick Start
 
 The setup scripts create a Python virtual environment, install dependencies, and register `database-mcp` in Claude Desktop.
+
+### Hosted Custom Client
+
+Run the ChatGPT-inspired DB/BRIDGE client locally:
+
+```bash
+export GROQ_API_KEY=your_groq_api_key
+uvicorn client.api.app:app --reload
+```
+
+Open `http://127.0.0.1:8000` to select a Groq model, manage temporary SQLite
+databases, ask questions, and inspect the MCP tool activity used for each answer.
+
+### Vercel Deployment
+
+The hosted client is configured through `vercel.json`. Add these environment
+variables in Vercel before deploying:
+
+```text
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODELS=llama-3.3-70b-versatile,llama-3.1-8b-instant,openai/gpt-oss-120b
+ALLOWED_ORIGINS=https://your-docs-domain.example,https://your-vercel-app.vercel.app
+```
+
+Uploaded databases are isolated by anonymous browser session but remain
+temporary because Vercel's function filesystem is not durable.
 
 ### Prerequisites
 
@@ -147,7 +173,7 @@ If you prefer to configure things manually or use [Claude Code](https://docs.ant
 
 2. **Add to Claude Code:**
    ```bash
-   claude mcp add database-mcp .venv/bin/python src/server.py
+   claude mcp add database-mcp .venv/bin/python mcp/src/server.py
    ```
 
 ---
@@ -156,7 +182,7 @@ If you prefer to configure things manually or use [Claude Code](https://docs.ant
 
 Ensure everything is working correctly by running the comprehensive test suite:
 ```bash
-pytest tests/ -v
+pytest mcp/tests/ -v
 ```
 
 ---
@@ -193,8 +219,8 @@ graph TD
 ```
 
 Curious how it works under the hood? 
-- Read [docs/structure.md](docs/structure.md) for a detailed walkthrough of the file architecture and the JSON-RPC execution flow.
-- Read [docs/ai_usage_note.md](docs/ai_usage_note.md) for notes on how AI was leveraged to build this project.
+- Read [documentation/docs/structure.md](documentation/docs/structure.md) for a detailed walkthrough of the file architecture and the JSON-RPC execution flow.
+- Read [documentation/docs/ai_usage_note.md](documentation/docs/ai_usage_note.md) for notes on how AI was leveraged to build this project.
 
 ---
 <div align="center">

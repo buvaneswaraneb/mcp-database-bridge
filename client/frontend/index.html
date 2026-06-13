@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1014">
+  <meta name="description" content="Ask questions about SQLite databases through the DB/BRIDGE MCP server.">
+  <title>DB/BRIDGE | MCP Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <a class="brand" href="/" aria-label="DB Bridge chat">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>DB<span>/</span>BRIDGE</span>
+        </a>
+        <button class="icon-button mobile-only" id="closeSidebar" aria-label="Close sidebar">×</button>
+      </div>
+
+      <button class="new-chat" id="newChat"><span>+</span> New conversation</button>
+
+      <div class="history-label">Recent conversations</div>
+      <nav class="history" id="history"></nav>
+
+      <div class="sidebar-foot">
+        <button class="sidebar-action" id="openDatabasePanel">
+          <span class="status-dot"></span>
+          <span><strong id="sidebarDatabase">sample.db</strong><small>Temporary database</small></span>
+        </button>
+        <a class="sidebar-action" href="https://github.com/buvaneswaraneb/mcp-database-bridge" target="_blank" rel="noreferrer">
+          <span class="mono-icon">&lt;/&gt;</span>
+          <span><strong>View source</strong><small>GitHub repository</small></span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="chat-shell">
+      <header class="chat-header">
+        <div class="header-left">
+          <button class="icon-button mobile-only" id="openSidebar" aria-label="Open sidebar">☰</button>
+          <div>
+            <span class="header-kicker">CUSTOM MCP CLIENT</span>
+            <strong id="conversationTitle">New database chat</strong>
+          </div>
+        </div>
+        <div class="header-controls">
+          <label class="select-control">
+            <span>MODEL</span>
+            <select id="modelSelect" aria-label="Select AI model"></select>
+          </label>
+          <button class="database-pill" id="databasePill">
+            <span class="status-dot"></span>
+            <span id="activeDatabase">sample.db</span>
+          </button>
+          <button class="icon-button" id="themeToggle" aria-label="Toggle theme">
+            <span class="theme-icon">◐</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="conversation" id="conversation">
+        <div class="welcome" id="welcome">
+          <span class="eyebrow"><span class="status-dot"></span> MCP connection ready</span>
+          <h1>Ask your database.<br><span>Watch the bridge work.</span></h1>
+          <p>Select a Groq model, choose a SQLite database, and ask a question. DB/BRIDGE will expose every MCP tool call along the way.</p>
+          <div class="suggestions">
+            <button data-prompt="What tables are available and what does each one contain?"><span>01</span>Explore the database</button>
+            <button data-prompt="Which products are the most expensive?"><span>02</span>Rank product prices</button>
+            <button data-prompt="Summarize completed and pending orders."><span>03</span>Analyze order status</button>
+            <button data-prompt="Show the database metadata and row counts."><span>04</span>Inspect metadata</button>
+          </div>
+          <div class="welcome-note"><strong>Read-only boundary</strong><span>Queries are restricted to SELECT and capped at 100 rows.</span></div>
+        </div>
+        <div class="messages" id="messages"></div>
+      </section>
+
+      <footer class="composer-wrap">
+        <form class="composer" id="composer">
+          <textarea id="messageInput" rows="1" maxlength="20000" placeholder="Ask a question about your database..." aria-label="Message"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-context">
+              <span class="status-dot"></span>
+              <span id="composerContext">sample.db via MCP</span>
+            </div>
+            <button class="send-button" id="sendButton" type="submit" aria-label="Send message">↑</button>
+            <button class="stop-button hidden" id="stopButton" type="button">Stop</button>
+          </div>
+        </form>
+        <p>Temporary demo storage. Do not upload sensitive databases.</p>
+      </footer>
+    </main>
+  </div>
+
+  <div class="backdrop hidden" id="backdrop"></div>
+  <aside class="database-panel" id="databasePanel" aria-hidden="true">
+    <div class="panel-head">
+      <div><span class="header-kicker">DATABASE CONTEXT</span><h2>Manage databases</h2></div>
+      <button class="icon-button" id="closeDatabasePanel" aria-label="Close database panel">×</button>
+    </div>
+    <div class="temporary-warning"><strong>Temporary hosted demo</strong><span>Uploads may disappear between deployments or server restarts.</span></div>
+    <label class="upload-zone" id="uploadZone">
+      <input type="file" id="databaseUpload" accept=".db,.sqlite" hidden>
+      <span class="upload-symbol">+</span>
+      <strong>Add SQLite database</strong>
+      <small>Maximum 10 MB · .db or .sqlite</small>
+    </label>
+    <div class="database-list-head"><span>AVAILABLE DATABASES</span><button id="refreshDatabases">Refresh</button></div>
+    <div class="database-list" id="databaseList"></div>
+    <div class="metadata-card hidden" id="metadataCard"></div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+  <script src="./script.js"></script>
+</body>
+</html>

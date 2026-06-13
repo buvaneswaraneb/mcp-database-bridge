@@ -144,10 +144,12 @@ async def upload_database(file: UploadFile = File(...), x_session_id: str | None
 
     try:
         connection = sqlite3.connect(f"file:{destination}?mode=ro", uri=True)
-        result = connection.execute("PRAGMA integrity_check").fetchone()
-        connection.close()
-        if not result or result[0] != "ok":
-            raise ValueError("SQLite integrity check failed.")
+        try:
+            result = connection.execute("PRAGMA integrity_check").fetchone()
+            if not result or result[0] != "ok":
+                raise ValueError("SQLite integrity check failed.")
+        finally:
+            connection.close()
     except Exception as exc:
         destination.unlink(missing_ok=True)
         raise HTTPException(status_code=400, detail="The uploaded file is not a valid SQLite database.") from exc

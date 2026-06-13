@@ -91,11 +91,20 @@ def init_sample_db():
         );
         INSERT OR IGNORE INTO customers VALUES (1,'Alice','alice@example.com','2024-01-01');
         INSERT OR IGNORE INTO customers VALUES (2,'Bob','bob@example.com','2024-02-15');
+        INSERT OR IGNORE INTO customers VALUES (3,'Charlie','charlie@example.com','2024-03-01');
+        INSERT OR IGNORE INTO customers VALUES (4,'David','david@example.com','2024-04-10');
+        INSERT OR IGNORE INTO customers VALUES (5,'Eve','eve@example.com','2024-05-22');
         INSERT OR IGNORE INTO orders VALUES (1,1,150.00,'completed','2024-03-01');
         INSERT OR IGNORE INTO orders VALUES (2,1,89.50,'pending','2024-03-10');
         INSERT OR IGNORE INTO orders VALUES (3,2,320.00,'completed','2024-03-12');
+        INSERT OR IGNORE INTO orders VALUES (4,3,45.00,'completed','2024-03-15');
+        INSERT OR IGNORE INTO orders VALUES (5,4,120.00,'completed','2024-04-20');
+        INSERT OR IGNORE INTO orders VALUES (6,5,29.99,'pending','2024-05-25');
         INSERT OR IGNORE INTO products VALUES (1,'Widget A',29.99,100);
         INSERT OR IGNORE INTO products VALUES (2,'Widget B',49.99,50);
+        INSERT OR IGNORE INTO products VALUES (3,'Widget C',19.99,200);
+        INSERT OR IGNORE INTO products VALUES (4,'Widget D',99.99,10);
+        INSERT OR IGNORE INTO products VALUES (5,'Widget E',5.99,500);
     """)
     conn.commit()
     conn.close()

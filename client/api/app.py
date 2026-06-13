@@ -33,7 +33,6 @@ MODEL_IDS = [
 
 HOSTED_DB_DIR.mkdir(parents=True, exist_ok=True)
 MCP_DIRECTORY_LOCK = threading.RLock()
-mcp_server.init_sample_db()
 
 app = FastAPI(title="DB/BRIDGE Hosted Client", version="1.0.0")
 app.add_middleware(
@@ -79,8 +78,34 @@ def session_directory(session_id: str | None) -> Path:
     directory = HOSTED_DB_DIR / safe_session_id(session_id)
     directory.mkdir(parents=True, exist_ok=True)
     sample = directory / "sample.db"
-    if SAMPLE_DB.exists() and not sample.exists():
-        shutil.copy2(SAMPLE_DB, sample)
+    if not sample.exists():
+        if SAMPLE_DB.exists():
+            shutil.copy2(SAMPLE_DB, sample)
+        else:
+            conn = sqlite3.connect(str(sample))
+            conn.row_factory = sqlite3.Row
+            conn.executescript("""
+                CREATE TABLE IF NOT EXISTS customers (
+                    id INTEGER PRIMARY KEY, name TEXT, email TEXT, created_at TEXT
+                );
+                CREATE TABLE IF NOT EXISTS orders (
+                    id INTEGER PRIMARY KEY, customer_id INTEGER, amount REAL,
+                    status TEXT, created_at TEXT,
+                    FOREIGN KEY (customer_id) REFERENCES customers(id)
+                );
+                CREATE TABLE IF NOT EXISTS products (
+                    id INTEGER PRIMARY KEY, name TEXT, price REAL, stock INTEGER
+                );
+                INSERT OR IGNORE INTO customers VALUES (1,'Alice','alice@example.com','2024-01-01');
+                INSERT OR IGNORE INTO customers VALUES (2,'Bob','bob@example.com','2024-02-15');
+                INSERT OR IGNORE INTO orders VALUES (1,1,150.00,'completed','2024-03-01');
+                INSERT OR IGNORE INTO orders VALUES (2,1,89.50,'pending','2024-03-10');
+                INSERT OR IGNORE INTO orders VALUES (3,2,320.00,'completed','2024-03-12');
+                INSERT OR IGNORE INTO products VALUES (1,'Widget A',29.99,100);
+                INSERT OR IGNORE INTO products VALUES (2,'Widget B',49.99,50);
+            """)
+            conn.commit()
+            conn.close()
     return directory
 
 

@@ -45,10 +45,13 @@ When the script starts, it immediately runs `init_sample_db()`. This function:
 - Inserts initial dummy data so the AI has something to query right away.
 
 ### 3. Exposing Capabilities (Tools)
-During the startup phase, Claude sends a `"tools/list"` request to ask the server what it can do. The server responds by advertising four specific tools defined in the `TOOLS` dictionary:
-- **`list_tables`**: Queries `sqlite_master` to find and return all table names in the database.
+During the startup phase, Claude sends a `"tools/list"` request to ask the server what it can do. The server responds by advertising several specific tools defined in the `TOOLS` dictionary:
+- **`open_database_manager`**: Opens a Web UI to manage, add, or delete SQLite databases.
+- **`list_databases`**: Lists all available databases in the configured database directory.
+- **`get_database_metadata`**: Retrieves metadata for a specific database (or the only available one), including SQLite version, file size, table names, and row/column counts.
+- **`list_tables`**: Queries `sqlite_master` to find and return all table names in a specific database.
 - **`get_schema`**: Runs `PRAGMA table_info(table_name)` to return the columns, data types, and nullability rules for a specific table so Claude knows how to write accurate SQL.
-- **`run_select`**: Executes a raw SQL query provided by Claude.
+- **`run_select`**: Executes a raw read-only SQL query provided by Claude.
 - **`explain_query`**: Uses `EXPLAIN QUERY PLAN` to help the AI debug or optimize complex SQL queries.
 
 ### 4. Handling a Tool Call (The AI Workflow)
@@ -59,3 +62,10 @@ When you ask Claude a question like *"Show me our top 3 most expensive products"
 4. **Safety Check:** Before executing, `run_select()` examines the SQL string. If it contains dangerous keywords like `INSERT`, `UPDATE`, `DROP`, `DELETE`, or `ALTER`, it immediately rejects the query. This ensures the AI only has **read-only** access and cannot accidentally destroy your data.
 5. If the query is safe, it executes it, automatically limits the results to a maximum of 100 rows (to prevent memory crashes), and formats the rows into a JSON array.
 6. The JSON result is printed back to Claude, which reads the data and formulates a natural language answer for you!
+
+### 5. Database Manager Web UI (Tech Stack)
+The project also includes a built-in web application that allows you to easily manage the SQLite databases available to Claude.
+- **Backend**: Built with **FastAPI** (`mcp/src/web.py`) and runs on an `uvicorn` server. It provides REST APIs (`/api/databases`) to list, upload, and delete `.db` or `.sqlite` files.
+- **Frontend**: A static web interface (HTML/JS) served from the `mcp/web/` directory.
+
+When Claude uses the `open_database_manager` tool, the server automatically starts the FastAPI backend in a background process (if not already running) and opens the frontend in your default web browser.

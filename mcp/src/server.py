@@ -58,6 +58,10 @@ def resolve_db_path(db_name: str = None) -> str:
 
 
 def get_connection(db_name: str = None):
+    """
+    Get a read-only SQLite connection to the specified database.
+    Returns rows as dictionaries (sqlite3.Row) for easier JSON serialization.
+    """
     path = resolve_db_path(db_name)
     conn = sqlite3.connect(f"file:{Path(path).resolve()}?mode=ro", uri=True, timeout=5)
     conn.row_factory = sqlite3.Row
@@ -111,6 +115,7 @@ def init_sample_db():
 
 
 def list_databases() -> dict:
+    """Return a list of the names of all databases available to the MCP server."""
     databases = get_available_databases()
     return {"databases": list(databases.keys())}
 
@@ -161,6 +166,7 @@ def get_database_metadata(db_name: str = None) -> dict:
 
 
 def list_tables(db_name: str = None) -> dict:
+    """Query the sqlite_master table to return a list of all table names in the database."""
     try:
         conn = get_connection(db_name)
         rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
@@ -171,6 +177,7 @@ def list_tables(db_name: str = None) -> dict:
 
 
 def get_schema(table_name: str, db_name: str = None) -> dict:
+    """Get the column definitions (names and types) for a specified table using PRAGMA table_info."""
     if not valid_identifier(table_name):
         return {"error": "Invalid table name"}
     try:
@@ -309,6 +316,10 @@ TOOLS = {
 
 
 def handle_request(req: dict):
+    """
+    Process an incoming JSON-RPC request from an MCP client.
+    Routes to the appropriate tool function based on the request method and tool name.
+    """
     method = req.get("method")
     req_id = req.get("id")
 
@@ -362,6 +373,10 @@ def handle_request(req: dict):
 
 
 def run_server():
+    """
+    Main entrypoint for the MCP stdio server.
+    Reads JSON-RPC requests from stdin, processes them, and writes responses to stdout.
+    """
     init_sample_db()
     sys.stderr.write("Database MCP Server started (stdio)\n")
     for line in sys.stdin:

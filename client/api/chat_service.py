@@ -22,6 +22,10 @@ HOSTED_TOOL_NAMES = {
 
 
 def groq_tools() -> list[dict]:
+    """
+    Format the locally hosted MCP tools into the function-calling schema 
+    expected by the Groq API.
+    """
     return [
         {
             "type": "function",
@@ -37,6 +41,10 @@ def groq_tools() -> list[dict]:
 
 
 def execute_tool(name: str, arguments: dict, db_name: str | None) -> dict:
+    """
+    Execute a requested MCP tool by formatting a JSON-RPC request and passing
+    it directly to the local mcp_server's handle_request method.
+    """
     args = dict(arguments)
     if name != "list_databases" and db_name:
         args["db_name"] = db_name
@@ -63,6 +71,11 @@ def run_chat(
     max_tool_rounds: int = 6,
     tool_executor: Callable[[str, dict, str | None], dict] = execute_tool,
 ) -> tuple[str, list[dict]]:
+    """
+    Run a multi-turn chat interaction with the language model.
+    The LLM may call MCP tools multiple times in a loop to investigate
+    database schemas and run queries before answering the user.
+    """
     conversation = [{"role": "system", "content": SYSTEM_PROMPT}]
     conversation.extend({"role": item["role"], "content": item["content"]} for item in messages)
     activity = []

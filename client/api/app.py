@@ -60,6 +60,11 @@ class ChatRequest(BaseModel):
 
 
 def safe_database_name(name: str) -> str:
+    """
+    Validate and sanitize the provided database name.
+    Ensures that the name does not contain directory traversal characters
+    and ends with a valid SQLite extension (.db or .sqlite).
+    """
     clean = Path(name).name
     if clean != name or "/" in name or "\\" in name or not clean.lower().endswith((".db", ".sqlite")):
         raise HTTPException(status_code=400, detail="Invalid SQLite database name.")
@@ -67,6 +72,11 @@ def safe_database_name(name: str) -> str:
 
 
 def safe_session_id(session_id: str | None) -> str:
+    """
+    Validate the session ID provided in the headers.
+    The session ID must be an alphanumeric string (with hyphens/underscores)
+    between 8 and 80 characters long.
+    """
     if not session_id:
         raise HTTPException(status_code=400, detail="X-Session-ID is required for database access.")
     if not re.fullmatch(r"[A-Za-z0-9_-]{8,80}", session_id):
@@ -75,6 +85,12 @@ def safe_session_id(session_id: str | None) -> str:
 
 
 def session_directory(session_id: str | None) -> Path:
+    """
+    Get the isolated directory path for the given session ID.
+    If the directory does not exist, it is created. A sample database
+    is also copied or generated within this directory to ensure the user
+    always has some data to interact with.
+    """
     directory = HOSTED_DB_DIR / safe_session_id(session_id)
     directory.mkdir(parents=True, exist_ok=True)
     sample = directory / "sample.db"
@@ -111,6 +127,10 @@ def session_directory(session_id: str | None) -> Path:
 
 @contextmanager
 def use_mcp_directory(directory: Path):
+    """
+    Temporarily override the database directory used by the MCP server.
+    Uses a threading lock to ensure thread safety when modifying the global state.
+    """
     with MCP_DIRECTORY_LOCK:
         previous = mcp_server.DB_DIR
         mcp_server.DB_DIR = str(directory)
@@ -121,6 +141,10 @@ def use_mcp_directory(directory: Path):
 
 
 def database_payload(directory: Path, name: str) -> dict:
+    """
+    Construct a standardized dictionary representation of a database file,
+    including its size and whether it is the sample database.
+    """
     path = directory / name
     return {
         "name": name,
@@ -132,16 +156,19 @@ def database_payload(directory: Path, name: str) -> dict:
 
 @app.get("/api/health")
 def health():
+    """Health check endpoint to verify the API is running and Groq is configured."""
     return {"status": "ok", "groq_configured": bool(os.environ.get("GROQ_API_KEY"))}
 
 
 @app.get("/api/models")
 def models():
+    """Return a list of available Groq models configured via environment variables."""
     return {"provider": "Groq", "models": [{"id": model, "label": model} for model in MODEL_IDS]}
 
 
 @app.get("/api/databases")
 def databases(x_session_id: str | None = Header(default=None)):
+    """List all databases available in the user's isolated session directory."""
     directory = session_directory(x_session_id)
     with use_mcp_directory(directory):
         names = mcp_server.list_databases().get("databases", [])
@@ -150,6 +177,7 @@ def databases(x_session_id: str | None = Header(default=None)):
 
 @app.get("/api/databases/{name}/metadata")
 def database_metadata(name: str, x_session_id: str | None = Header(default=None)):
+    """Fetch metadata for a specific database (table counts, sizes, etc.) via the MCP server."""
     directory = session_directory(x_session_id)
     with use_mcp_directory(directory):
         return mcp_server.get_database_metadata(safe_database_name(name))
@@ -157,6 +185,10 @@ def database_metadata(name: str, x_session_id: str | None = Header(default=None)
 
 @app.post("/api/databases/upload", status_code=201)
 async def upload_database(file: UploadFile = File(...), x_session_id: str | None = Header(default=None)):
+    """
+    Handle user database uploads.
+    Validates file size, saves the file to the session directory, and performs a basic SQLite integrity check.
+    """
     name = safe_database_name(file.filename or "")
     directory = session_directory(x_session_id)
     destination = directory / name
@@ -185,6 +217,7 @@ async def upload_database(file: UploadFile = File(...), x_session_id: str | None
 
 @app.delete("/api/databases/{name}")
 def delete_database(name: str, x_session_id: str | None = Header(default=None)):
+    """Delete a specific database file from the user's session directory."""
     name = safe_database_name(name)
     if name == "sample.db":
         raise HTTPException(status_code=403, detail="The bundled sample database cannot be deleted.")
@@ -197,6 +230,10 @@ def delete_database(name: str, x_session_id: str | None = Header(default=None)):
 
 @app.post("/api/chat")
 def chat(request: ChatRequest, x_session_id: str | None = Header(default=None)):
+    """
+    Process a chat message, giving the LLM access to the specified database (if any).
+    The LLM may call MCP tools to inspect schemas and run SELECT queries before responding.
+    """
     directory = session_directory(x_session_id)
     if request.model not in MODEL_IDS:
         raise HTTPException(status_code=400, detail="Unsupported model.")

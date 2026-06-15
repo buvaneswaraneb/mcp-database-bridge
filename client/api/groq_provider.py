@@ -12,10 +12,18 @@ class ProviderError(RuntimeError):
 
 
 class GroqProvider:
+    """
+    A lightweight, dependency-free HTTP client for the Groq chat completions API.
+    Used to connect to LLaMa models for natural language database querying.
+    """
     def __init__(self, api_key: str | None = None):
         self.api_key = api_key or os.environ.get("GROQ_API_KEY")
 
     def complete(self, model: str, messages: list[dict], tools: list[dict]) -> dict:
+        """
+        Send a completion request to the Groq API, passing along the chat history
+        and available MCP tool schemas.
+        """
         if not self.api_key:
             raise ProviderError("GROQ_API_KEY is not configured on the server.")
 
